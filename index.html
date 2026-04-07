@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>视频号直播间运营自评问卷</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue-primary: #0052D9;
+  --blue-light: #006EFF;
+  --blue-bg: #F0F5FF;
+  --blue-hover: #003DAC;
+  --blue-gradient: linear-gradient(135deg, #0052D9, #006EFF);
+  --gray-bg: #F5F6FA;
+  --gray-border: #E5E6EB;
+  --gray-text: #86909C;
+  --dark-text: #1D2129;
+  --card-bg: #FFFFFF;
+  --success: #00B42A;
+  --warning: #FF7D00;
+  --danger: #F53F3F;
+  --gold: #F7BA1E;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  background: var(--gray-bg);
+  color: var(--dark-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: var(--blue-gradient);
+  padding: 20px 16px 16px;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,82,217,0.15);
+}
+.header-title {
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+.header-sub {
+  font-size: 12px;
+  opacity: 0.8;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* Progress */
+.progress-wrap {
+  padding: 0 16px;
+  margin-top: 12px;
+}
+.progress-bar-bg {
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  font-size: 11px;
+  opacity: 0.8;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Steps indicator */
+.steps-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: all 0.3s;
+}
+.step-dot.active { background: #fff; transform: scale(1.2); }
+.step-dot.done { background: rgba(255,255,255,0.7); }
+
+/* Content area */
+.content {
+  padding: 16px;
+  padding-bottom: 100px;
+  min-height: calc(100vh - 130px);
+}
+
+/* Welcome page */
+.welcome-page { text-align: center; padding-top: 40px; }
+.welcome-icon {
+  width: 80px; height: 80px;
+  background: var(--blue-gradient);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 40px;
+  box-shadow: 0 8px 24px rgba(0,82,217,0.2);
+}
+.welcome-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.welcome-desc { font-size: 14px; color: var(--gray-text); line-height: 1.8; margin-bottom: 32px; padding: 0 12px; }
+.welcome-features {
+  display: flex; flex-direction: column; gap: 12px;
+  text-align: left; padding: 0 8px;
+}
+.welcome-feature {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.welcome-feature-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.welcome-feature-icon.blue { background: #E8F0FE; }
+.welcome-feature-icon.green { background: #E8F8EE; }
+.welcome-feature-icon.orange { background: #FFF3E0; }
+.welcome-feature-text { font-size: 14px; color: #4E5969; }
+.welcome-feature-text strong { color: var(--dark-text); }
+
+/* Module card */
+.module-page { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.module-header {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.module-tag {
+  display: inline-block;
+  background: var(--blue-bg);
+  color: var(--blue-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.module-name { font-size: 18px; font-weight: 700; }
+.module-count { font-size: 12px; color: var(--gray-text); margin-top: 4px; }
+
+/* Question card */
+.question-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: border-color 0.3s;
+  border: 2px solid transparent;
+}
+.question-card.answered { border-color: var(--blue-primary); }
+.question-title {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px;
+}
+.question-num {
+  background: var(--blue-primary); color: #fff;
+  width: 22px; height: 22px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.question-desc { font-size: 13px; color: var(--gray-text); margin-bottom: 14px; margin-left: 28px; }
+
+/* Rating options */
+.rating-options {
+  display: flex; gap: 6px; margin-left: 28px;
+}
+.rating-btn {
+  flex: 1; border: none; border-radius: 8px;
+  padding: 10px 4px; cursor: pointer;
+  background: var(--gray-bg); color: var(--gray-text);
+  transition: all 0.2s; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.rating-btn .score { font-size: 18px; font-weight: 700; display: block; }
+.rating-btn .label { font-size: 10px; display: block; margin-top: 2px; }
+.rating-btn:active { transform: scale(0.95); }
+.rating-btn.selected {
+  background: var(--blue-primary); color: #fff;
+  box-shadow: 0 4px 12px rgba(0,82,217,0.3);
+}
+.rating-btn.s1.selected { background: #F53F3F; box-shadow: 0 4px 12px rgba(245,63,63,0.3); }
+.rating-btn.s2.selected { background: #FF7D00; box-shadow: 0 4px 12px rgba(255,125,0,0.3); }
+.rating-btn.s3.selected { background: #F7BA1E; color: var(--dark-text); box-shadow: 0 4px 12px rgba(247,186,30,0.3); }
+.rating-btn.s4.selected { background: #00B42A; box-shadow: 0 4px 12px rgba(0,180,42,0.3); }
+.rating-btn.s5.selected { background: var(--blue-primary); box-shadow: 0 4px 12px rgba(0,82,217,0.3); }
+
+/* Detail desc */
+.rating-detail {
+  margin: 10px 0 0 28px;
+  padding: 10px 12px;
+  background: var(--blue-bg);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--blue-primary);
+  line-height: 1.6;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Phone page */
+.phone-page { animation: fadeIn 0.3s ease; }
+.phone-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 24px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  text-align: center;
+}
+.phone-icon { font-size: 48px; margin-bottom: 16px; }
+.phone-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.phone-desc { font-size: 13px; color: var(--gray-text); margin-bottom: 24px; }
+.phone-input-wrap {
+  position: relative; margin: 0 auto; max-width: 300px;
+}
+.phone-input {
+  width: 100%; height: 48px;
+  border: 2px solid var(--gray-border);
+  border-radius: 12px;
+  padding: 0 16px 0 44px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+  -webkit-appearance: none;
+}
+.phone-input:focus { border-color: var(--blue-primary); }
+.phone-prefix {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 16px; color: var(--gray-text);
+}
+.phone-error {
+  color: var(--danger); font-size: 12px;
+  margin-top: 8px; display: none;
+}
+.phone-privacy {
+  font-size: 12px; color: var(--gray-text);
+  margin-top: 16px; line-height: 1.6;
+}
+
+/* Result page */
+.result-page { animation: fadeIn 0.4s ease; }
+.result-score-card {
+  background: var(--blue-gradient);
+  border-radius: 16px;
+  padding: 28px 20px;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,82,217,0.2);
+  margin-bottom: 16px;
+}
+.result-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.result-score { font-size: 56px; font-weight: 800; }
+.result-score span { font-size: 18px; font-weight: 400; opacity: 0.8; }
+.result-rate { font-size: 15px; opacity: 0.9; margin-top: 4px; }
+.result-level {
+  margin-top: 12px; font-size: 20px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.result-chart-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.result-chart-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.radar-container { width: 100%; max-width: 300px; margin: 0 auto; }
+
+/* Module result bars */
+.module-result {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.module-result-name { font-size: 13px; width: 70px; flex-shrink: 0; text-align: right; }
+.module-result-bar-bg {
+  flex: 1; height: 20px; background: var(--gray-bg);
+  border-radius: 10px; overflow: hidden; position: relative;
+}
+.module-result-bar {
+  height: 100%; border-radius: 10px;
+  transition: width 0.8s ease;
+  background: var(--blue-gradient);
+}
+.module-result-bar.low { background: linear-gradient(135deg, #F53F3F, #FF7D00); }
+.module-result-bar.mid { background: linear-gradient(135deg, #F7BA1E, #FF9A2E); }
+.module-result-bar.good { background: linear-gradient(135deg, #00B42A, #23C343); }
+.module-result-bar.great { background: var(--blue-gradient); }
+.module-result-pct { font-size: 13px; font-weight: 600; width: 42px; }
+
+/* Suggestion cards */
+.suggestion-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-left: 4px solid var(--blue-primary);
+}
+.suggestion-card.priority-1 { border-left-color: #F53F3F; }
+.suggestion-card.priority-2 { border-left-color: #FF7D00; }
+.suggestion-card.priority-3 { border-left-color: #F7BA1E; }
+.suggestion-card.priority-good { border-left-color: #00B42A; }
+.suggestion-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.suggestion-desc { font-size: 13px; color: #4E5969; line-height: 1.6; }
+
+/* Footer */
+.footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card-bg);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  z-index: 100;
+  display: flex; gap: 10px;
+}
+.btn {
+  flex: 1; height: 48px; border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary {
+  background: var(--blue-primary); color: #fff;
+  box-shadow: 0 4px 12px rgba(0,82,217,0.2);
+}
+.btn-primary:disabled { background: #C9CDD4; box-shadow: none; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--gray-bg); color: var(--dark-text);
+  flex: 0 0 100px;
+}
+.btn-submit {
+  background: var(--blue-gradient); color: #fff;
+  box-shadow: 0 4px 16px rgba(0,82,217,0.3);
+}
+
+/* Loading */
+.loading-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 999; display: none;
+}
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--gray-border);
+  border-top-color: var(--blue-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin-top: 12px; font-size: 14px; color: var(--gray-text); }
+
+/* Toast */
+.toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75); color: #fff;
+  padding: 12px 24px; border-radius: 8px;
+  font-size: 14px; z-index: 1000;
+  display: none; animation: fadeIn 0.2s;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">视频号直播间运营自评问卷</div>
+  <div class="header-sub" id="headerSub">全面诊断，精准提升</div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-text" id="progressText">0/15</div>
+  </div>
+  <div class="steps-indicator" id="stepsIndicator" style="display:none"></div>
+</div>
+
+<!-- Content -->
+<div class="content" id="content"></div>
+
+<!-- Footer -->
+<div class="footer" id="footer" style="display:none"></div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">正在提交...</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 数据定义 ====================
+const MODULES = [
+  {
+    name: '直播间基建',
+    icon: '🏗️',
+    questions: [
+      {
+        id: 'q1', dim: '直播间画面质量', desc: '画面清晰度、灯光、背景布置等整体视觉呈现', weight: 8,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '画面模糊/无布景/灯光昏暗',
+          '画面一般/简单背景/灯光偏暗',
+          '画面清晰/有品牌背景/灯光合格',
+          '画面高清/品牌背景精致/灯光专业',
+          '画面4K级/场景沉浸式/灯光氛围感强'
+        ]
+      },
+      {
+        id: 'q2', dim: '直播间封面与标题', desc: '封面图吸引力、标题文案的点击欲望', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无封面/标题随意',
+          '封面模糊/标题无吸引力',
+          '有封面设计/标题有基本信息',
+          '封面精美/标题有卖点和利益点',
+          '封面高点击率/标题精准触达目标人群'
+        ]
+      },
+      {
+        id: 'q3', dim: '直播间贴片与氛围', desc: '贴片信息完整性、福利展示、弹幕互动引导等', weight: 6,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无贴片/无氛围营造',
+          '有简单贴片但信息不全',
+          '贴片展示核心福利/有基础氛围',
+          '贴片设计精美/信息层次清晰/氛围感强',
+          '贴片动态化/多层级信息展示/强互动引导'
+        ]
+      }
+    ]
+  },
+  {
+    name: '主播与话术',
+    icon: '🎙️',
+    questions: [
+      {
+        id: 'q4', dim: '主播专业度', desc: '产品知识储备、表达能力、镜头表现力', weight: 10,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '不熟悉产品/表达混乱',
+          '了解基本信息/表达一般',
+          '熟悉产品卖点/表达流畅',
+          '深度理解产品/表达有感染力',
+          '专家级讲解/极强说服力和感染力'
+        ]
+      },
+      {
+        id: 'q5', dim: '互动与留人能力', desc: '回复弹幕速度、互动频率、留人话术效果', weight: 9,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '几乎不互动/自说自话',
+          '偶尔回复弹幕/互动少',
+          '定时互动/有基本留人话术',
+          '频繁互动/留人话术有效/节奏感好',
+          '实时互动/高留人率/粉丝粘性强'
+        ]
+      },
+      {
+        id: 'q6', dim: '逼单与转化话术', desc: '促成下单的话术技巧、紧迫感营造能力', weight: 9,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无逼单意识/纯讲解',
+          '有简单引导下单',
+          '有基本逼单话术/能营造基础紧迫感',
+          '逼单节奏好/限时限量+价格锚点配合',
+          '成交话术成熟/转化率高/连带销售能力强'
+        ]
+      }
+    ]
+  },
+  {
+    name: '货品策略',
+    icon: '📦',
+    questions: [
+      {
+        id: 'q7', dim: '选品与组货逻辑', desc: '引流款/利润款/爆款的搭配策略', weight: 8,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '品类单一/无组货逻辑',
+          '有少量SKU/组货逻辑不清',
+          '有引流款+主推款区分',
+          '引流款+利润款+爆款合理搭配',
+          '选品精准/货盘结构完善/有差异化组货'
+        ]
+      },
+      {
+        id: 'q8', dim: '价格竞争力', desc: '对比同品类直播间的价格优势和福利机制', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '价格明显偏高/无优惠机制',
+          '价格一般/优惠力度小',
+          '价格有竞争力/有基本优惠',
+          '价格优势明显/赠品丰富',
+          '全网最低价/超强赠品策略/高性价比'
+        ]
+      },
+      {
+        id: 'q9', dim: '上架节奏与排品', desc: '商品上架顺序、过款节奏把控、库存管理', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '随意上架/无节奏',
+          '有基本顺序但节奏混乱',
+          '有排品计划/节奏基本合理',
+          '排品科学/节奏配合流量波动',
+          '排品策略成熟/实时调整/库存精准管控'
+        ]
+      }
+    ]
+  },
+  {
+    name: '流量运营',
+    icon: '📈',
+    questions: [
+      {
+        id: 'q10', dim: '自然流量获取能力', desc: '直播推荐/搜索/关注页等免费流量占比和质量', weight: 8,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '几乎无自然流量',
+          '自然流量占比<20%',
+          '自然流量占比20%-40%',
+          '自然流量占比40%-60%',
+          '自然流量占比>60%且质量高'
+        ]
+      },
+      {
+        id: 'q11', dim: '付费流量投放能力', desc: '微信豆/ADQ投放的ROI和效率', weight: 8,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '未使用付费投放',
+          '有投放但ROI<1',
+          'ROI 1-2/投放策略基本',
+          'ROI 2-3/定向精准/预算控制好',
+          'ROI>3/投放策略成熟/流量精准高效'
+        ]
+      },
+      {
+        id: 'q12', dim: '短视频引流能力', desc: '直播前/中的短视频内容对直播间的导流效果', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无短视频引流',
+          '偶尔发预告视频/效果差',
+          '定期发预告和切片/有基本引流效果',
+          '短视频矩阵引流/预告+切片+种草配合',
+          '短视频引流占比高/内容体系完善/高效转化'
+        ]
+      },
+      {
+        id: 'q13', dim: '私域导流与复购', desc: '粉丝群/公众号/企微等私域对直播间的贡献', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无私域运营',
+          '有粉丝群但活跃度低',
+          '有基本的开播通知/粉丝群运营',
+          '私域导流体系完善/复购率好',
+          '私域贡献占比高/粉丝LTV持续增长'
+        ]
+      }
+    ]
+  },
+  {
+    name: '数据与复盘',
+    icon: '📊',
+    questions: [
+      {
+        id: 'q14', dim: '核心数据监控', desc: 'GPM/停留时长/转化率/UV价值等关键指标的关注度', weight: 8,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '不关注数据',
+          '偶尔看场观和GMV',
+          '关注基础数据/有简单记录',
+          '系统监控核心指标/定期对比分析',
+          '建立完整数据看板/实时调优'
+        ]
+      },
+      {
+        id: 'q15', dim: '直播复盘机制', desc: '每场直播后的复盘质量和改进执行力', weight: 7,
+        labels: ['很差','较差','一般','良好','优秀'],
+        details: [
+          '无复盘习惯',
+          '偶尔简单总结',
+          '每场有复盘/记录问题点',
+          '结构化复盘/有改进计划和执行追踪',
+          '深度复盘/A/B测试/持续迭代优化体系'
+        ]
+      }
+    ]
+  }
+];
+
+const SCORE_LABELS = ['很差 🔴','较差 🟠','一般 🟡','良好 👍','优秀 🌟'];
+
+// ==================== 状态管理 ====================
+let currentStep = 0; // 0=welcome, 1-5=modules, 6=phone, 7=result
+const totalSteps = 7;
+const answers = {};
+let phoneNumber = '';
+
+// 从URL获取openid和unionid
+const urlParams = new URLSearchParams(window.location.search);
+const openid = urlParams.get('openid') || '';
+const unionid = urlParams.get('unionid') || '';
+
+// ==================== 渲染函数 ====================
+function render() {
+  const content = document.getElementById('content');
+  const footer = document.getElementById('footer');
+  const progressWrap = document.getElementById('progressWrap');
+  const stepsIndicator = document.getElementById('stepsIndicator');
+  const headerSub = document.getElementById('headerSub');
+
+  if (currentStep === 0) {
+    renderWelcome(content, footer);
+    progressWrap.style.display = 'none';
+    stepsIndicator.style.display = 'none';
+    headerSub.textContent = '全面诊断，精准提升';
+  } else if (currentStep >= 1 && currentStep <= 5) {
+    renderModule(content, footer, currentStep - 1);
+    progressWrap.style.display = 'block';
+    stepsIndicator.style.display = 'flex';
+    headerSub.style.display = 'none';
+    updateProgress();
+    updateSteps();
+  } else if (currentStep === 6) {
+    renderPhone(content, footer);
+    progressWrap.style.display = 'block';
+    stepsIndicator.style.display = 'flex';
+    headerSub.style.display = 'none';
+    updateProgress();
+    updateSteps();
+  } else if (currentStep === 7) {
+    renderResult(content, footer);
+    progressWrap.style.display = 'none';
+    stepsIndicator.style.display = 'none';
+    headerSub.textContent = '诊断报告';
+    headerSub.style.display = 'block';
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderWelcome(content, footer) {
+  content.innerHTML = `
+    <div class="welcome-page">
+      <div class="welcome-icon">📋</div>
+      <div class="welcome-title">视频号直播间运营自评</div>
+      <div class="welcome-desc">
+        通过 5 大模块、15 个核心维度的评估，<br>
+        全面诊断您的直播间运营水平，<br>
+        获取专属改善建议，助力业绩增长。
+      </div>
+      <div class="welcome-features">
+        <div class="welcome-feature">
+          <div class="welcome-feature-icon blue">⏱️</div>
+          <div class="welcome-feature-text"><strong>3 分钟</strong>完成全部评估</div>
+        </div>
+        <div class="welcome-feature">
+          <div class="welcome-feature-icon green">📊</div>
+          <div class="welcome-feature-text"><strong>雷达图</strong>直观展示各模块水平</div>
+        </div>
+        <div class="welcome-feature">
+          <div class="welcome-feature-icon orange">💡</div>
+          <div class="welcome-feature-text"><strong>优先级建议</strong>精准定位改善方向</div>
+        </div>
+      </div>
+    </div>
+  `;
+  footer.style.display = 'flex';
+  footer.innerHTML = `<button class="btn btn-primary" onclick="nextStep()">开始评估</button>`;
+}
+
+function renderModule(content, footer, moduleIdx) {
+  const mod = MODULES[moduleIdx];
+  let qHtml = '';
+  mod.questions.forEach((q, i) => {
+    const globalIdx = getGlobalIdx(moduleIdx, i);
+    const selected = answers[q.id] || 0;
+    const answered = selected > 0 ? ' answered' : '';
+    let btns = '';
+    for (let s = 1; s <= 5; s++) {
+      const sel = selected === s ? ' selected' : '';
+      btns += `<button class="rating-btn s${s}${sel}" onclick="selectRating('${q.id}',${s})">`
+        + `<span class="score">${s}</span><span class="label">${q.labels[s-1]}</span></button>`;
+    }
+    const detail = selected > 0
+      ? `<div class="rating-detail">${q.details[selected-1]}</div>` : '';
+    qHtml += `
+      <div class="question-card${answered}" id="card-${q.id}">
+        <div class="question-title">
+          <span class="question-num">${globalIdx}</span>
+          <span>${q.dim}</span>
+        </div>
+        <div class="question-desc">${q.desc}</div>
+        <div class="rating-options">${btns}</div>
+        ${detail}
+      </div>
+    `;
+  });
+
+  content.innerHTML = `
+    <div class="module-page">
+      <div class="module-header">
+        <div class="module-tag">模块 ${moduleIdx + 1}/5</div>
+        <div class="module-name">${mod.icon} ${mod.name}</div>
+        <div class="module-count">共 ${mod.questions.length} 个评估维度</div>
+      </div>
+      ${qHtml}
+    </div>
+  `;
+
+  const allAnswered = mod.questions.every(q => answers[q.id] > 0);
+  footer.style.display = 'flex';
+  footer.innerHTML = `
+    ${currentStep > 1 ? '<button class="btn btn-secondary" onclick="prevStep()">上一步</button>' : ''}
+    <button class="btn btn-primary" ${allAnswered ? '' : 'disabled'} id="nextBtn" onclick="nextStep()">
+      ${currentStep === 5 ? '填写联系方式' : '下一步'}
+    </button>
+  `;
+}
+
+function renderPhone(content, footer) {
+  content.innerHTML = `
+    <div class="phone-page">
+      <div class="phone-card">
+        <div class="phone-icon">📱</div>
+        <div class="phone-title">请留下您的手机号</div>
+        <div class="phone-desc">用于后续为您提供专属运营诊断服务</div>
+        <div class="phone-input-wrap">
+          <span class="phone-prefix">+86</span>
+          <input class="phone-input" id="phoneInput" type="tel" maxlength="11"
+            placeholder="请输入手机号" value="${phoneNumber}" oninput="onPhoneInput(this)">
+        </div>
+        <div class="phone-error" id="phoneError">请输入正确的11位手机号</div>
+        <div class="phone-privacy">🔒 您的信息将被严格保密，仅用于本次诊断服务</div>
+      </div>
+    </div>
+  `;
+  footer.style.display = 'flex';
+  footer.innerHTML = `
+    <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+    <button class="btn btn-submit" id="submitBtn" ${isValidPhone(phoneNumber)?'':'disabled'} onclick="submitForm()">提交问卷</button>
+  `;
+}
+
+function renderResult(content, footer) {
+  const result = calcResult();
+  const rate = result.rate;
+  let levelText, levelIcon;
+  if (rate >= 80) { levelText = '优秀'; levelIcon = '🌟'; }
+  else if (rate >= 60) { levelText = '良好'; levelIcon = '👍'; }
+  else if (rate >= 40) { levelText = '待提升'; levelIcon = '⚡'; }
+  else { levelText = '亟需改善'; levelIcon = '🚨'; }
+
+  let moduleBars = '';
+  const sortedModules = [...result.modules].sort((a, b) => a.rate - b.rate);
+  result.modules.forEach(m => {
+    let barClass = 'great';
+    if (m.rate < 40) barClass = 'low';
+    else if (m.rate < 60) barClass = 'mid';
+    else if (m.rate < 80) barClass = 'good';
+    moduleBars += `
+      <div class="module-result">
+        <div class="module-result-name">${m.name}</div>
+        <div class="module-result-bar-bg">
+          <div class="module-result-bar ${barClass}" style="width:0%" data-width="${m.rate}%"></div>
+        </div>
+        <div class="module-result-pct">${m.rate.toFixed(0)}%</div>
+      </div>
+    `;
+  });
+
+  let suggestions = '';
+  sortedModules.forEach((m, i) => {
+    let pClass, pLabel, pDesc;
+    if (m.rate >= 80) {
+      pClass = 'priority-good'; pLabel = '✅ 保持优势';
+      pDesc = `${m.name}表现优秀，维持当前水平，持续精进细节`;
+    } else if (i === 0) {
+      pClass = 'priority-1'; pLabel = '🥇 第一优先';
+      pDesc = `${m.name}是当前最大短板（得分率${m.rate.toFixed(0)}%），建议集中资源重点突破`;
+    } else if (i === 1) {
+      pClass = 'priority-2'; pLabel = '🥈 第二优先';
+      pDesc = `${m.name}得分率${m.rate.toFixed(0)}%，在第一优先取得进展后逐步优化`;
+    } else {
+      pClass = 'priority-3'; pLabel = '🥉 持续优化';
+      pDesc = `${m.name}得分率${m.rate.toFixed(0)}%，纳入中期规划持续跟踪`;
+    }
+    suggestions += `
+      <div class="suggestion-card ${pClass}">
+        <div class="suggestion-title">${pLabel}</div>
+        <div class="suggestion-desc">${pDesc}</div>
+      </div>
+    `;
+  });
+
+  content.innerHTML = `
+    <div class="result-page">
+      <div class="result-score-card">
+        <div class="result-badge">综合诊断结果</div>
+        <div class="result-score">${result.totalScore.toFixed(1)} <span>/ ${result.maxScore}</span></div>
+        <div class="result-rate">得分率 ${rate.toFixed(1)}%</div>
+        <div class="result-level">${levelIcon} ${levelText}</div>
+      </div>
+
+      <div class="result-chart-card">
+        <div class="result-chart-title">📊 各模块得分一览</div>
+        ${moduleBars}
+      </div>
+
+      <div class="result-chart-card">
+        <div class="result-chart-title">🎯 运营能力雷达图</div>
+        <div class="radar-container"><canvas id="radarChart"></canvas></div>
+      </div>
+
+      <div class="result-chart-card">
+        <div class="result-chart-title">📌 改善优先级建议</div>
+        ${suggestions}
+      </div>
+    </div>
+  `;
+
+  footer.style.display = 'flex';
+  footer.innerHTML = `<button class="btn btn-primary" onclick="location.reload()">重新评估</button>`;
+
+  // 动画：条形图
+  setTimeout(() => {
+    document.querySelectorAll('.module-result-bar').forEach(bar => {
+      bar.style.width = bar.dataset.width;
+    });
+  }, 100);
+
+  // 雷达图
+  setTimeout(() => drawRadar(result), 200);
+}
+
+// ==================== 交互逻辑 ====================
+function selectRating(qId, score) {
+  answers[qId] = score;
+  render();
+}
+
+function onPhoneInput(input) {
+  phoneNumber = input.value.replace(/\D/g, '');
+  input.value = phoneNumber;
+  const err = document.getElementById('phoneError');
+  const btn = document.getElementById('submitBtn');
+  if (phoneNumber.length === 11 && !isValidPhone(phoneNumber)) {
+    err.style.display = 'block';
+    btn.disabled = true;
+  } else {
+    err.style.display = 'none';
+    btn.disabled = !isValidPhone(phoneNumber);
+  }
+}
+
+function isValidPhone(phone) {
+  return /^1[3-9]\d{9}$/.test(phone);
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    currentStep++;
+    render();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    render();
+  }
+}
+
+function getGlobalIdx(moduleIdx, questionIdx) {
+  let idx = 0;
+  for (let i = 0; i < moduleIdx; i++) idx += MODULES[i].questions.length;
+  return idx + questionIdx + 1;
+}
+
+function updateProgress() {
+  const answered = Object.keys(answers).length;
+  const pct = (answered / 15 * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${answered}/15 已完成`;
+}
+
+function updateSteps() {
+  const indicator = document.getElementById('stepsIndicator');
+  let dots = '';
+  for (let i = 1; i <= 6; i++) {
+    let cls = 'step-dot';
+    if (i === currentStep) cls += ' active';
+    else if (i < currentStep) cls += ' done';
+    dots += `<div class="${cls}"></div>`;
+  }
+  indicator.innerHTML = dots;
+}
+
+// ==================== 计算结果 ====================
+function calcResult() {
+  let totalScore = 0, maxScore = 0;
+  const modules = MODULES.map(mod => {
+    let modScore = 0, modMax = 0;
+    mod.questions.forEach(q => {
+      const s = answers[q.id] || 0;
+      modScore += s * q.weight;
+      modMax += 5 * q.weight;
+    });
+    totalScore += modScore;
+    maxScore += modMax;
+    return { name: mod.name, score: modScore, max: modMax, rate: (modScore/modMax)*100 };
+  });
+  return { totalScore, maxScore, rate: (totalScore/maxScore)*100, modules };
+}
+
+// ==================== 雷达图 ====================
+function drawRadar(result) {
+  const ctx = document.getElementById('radarChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: result.modules.map(m => m.name),
+      datasets: [{
+        label: '得分率',
+        data: result.modules.map(m => m.rate.toFixed(1)),
+        backgroundColor: 'rgba(0,82,217,0.15)',
+        borderColor: '#0052D9',
+        borderWidth: 2,
+        pointBackgroundColor: '#0052D9',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { stepSize: 20, font: { size: 10 }, backdropColor: 'transparent' },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          angleLines: { color: 'rgba(0,0,0,0.06)' },
+          pointLabels: { font: { size: 12, weight: '600' }, color: '#1D2129' }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ==================== 提交到腾讯文档 ====================
+async function submitForm() {
+  if (!isValidPhone(phoneNumber)) {
+    showToast('请输入正确的手机号');
+    return;
+  }
+
+  const loading = document.getElementById('loading');
+  loading.style.display = 'flex';
+
+  const result = calcResult();
+  let levelText;
+  if (result.rate >= 80) levelText = '🌟 优秀';
+  else if (result.rate >= 60) levelText = '👍 良好';
+  else if (result.rate >= 40) levelText = '⚡ 待提升';
+  else levelText = '🚨 亟需改善';
+
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+
+  // 构建提交数据
+  const rowData = [
+    timeStr,
+    phoneNumber,
+    openid,
+    unionid,
+  ];
+
+  // 添加每道题的分数
+  MODULES.forEach(mod => {
+    mod.questions.forEach(q => {
+      rowData.push(answers[q.id] || 0);
+    });
+  });
+
+  // 添加汇总数据
+  rowData.push(result.totalScore.toFixed(1));
+  rowData.push(result.maxScore);
+  rowData.push(result.rate.toFixed(1) + '%');
+  rowData.push(levelText);
+
+  // 各模块得分率
+  result.modules.forEach(m => {
+    rowData.push(m.rate.toFixed(1) + '%');
+  });
+
+  console.log('提交数据:', rowData);
+
+  // TODO: 对接腾讯文档API
+  // 腾讯文档开放API需要在腾讯文档开放平台申请，获取 access_token 后调用
+  // 接口文档: https://docs.qq.com/open/wiki/
+  // 示例:
+  // await fetch('https://docs.qq.com/openapi/v2/...', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json', 'Access-Token': 'YOUR_TOKEN' },
+  //   body: JSON.stringify({ ... })
+  // });
+
+  // 模拟提交延迟
+  await new Promise(r => setTimeout(r, 800));
+
+  loading.style.display = 'none';
+  showToast('提交成功！');
+
+  // 跳转到结果页
+  currentStep = 7;
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2000);
+}
+
+// ==================== 初始化 ====================
+render();
+</script>
+</body>
+</html>
